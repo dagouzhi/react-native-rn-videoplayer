@@ -12,7 +12,9 @@ import {
     Alert,
     Easing,
     PanResponder,
-    Platform
+    Platform,
+    Modal,
+    SafeAreaView,
 } from 'react-native';
 import {
     Loading,
@@ -970,6 +972,46 @@ class VideoPlayer extends React.Component {
         const speedLoToWidth = stateWidth / this.speedTouchScale
         return (
             <>
+                <Modal visible={this.state.visible || false}>
+                    <SafeAreaView>
+                        <View
+                            style={{
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                height: 50,
+                                backgroundColor: '#eee'
+                            }}
+                        >
+                            <Text>
+                                播放倍数
+                            </Text>
+                        </View>
+                       {
+                           [2.0, 1.5, 1.25, 1.0, 0.5].map((item) => {
+                               return (
+                                <TouchableOpacity
+                                    style={{
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                        height: 50,
+                                        backgroundColor: item === this.state.rate ? 'red' : '#eee'
+                                    }} key={item}
+                                    onPress={() => {
+                                        this.setState({
+                                            rate: item,
+                                            visible: false,
+                                        })
+                                    }}
+                                >
+                                    <Text>
+                                    {item}X
+                                    </Text>
+                                </TouchableOpacity>
+                               )
+                           })
+                       }
+                    </SafeAreaView>
+                </Modal>
                 {this.props.statusBar ? (smallP && this.props.statusBar()) : <Header width={stateWidth} />}
                 <View ref={ref => this.videoBox = ref} style={{ backgroundColor: "#000", position: 'relative' }}>
 
@@ -987,7 +1029,7 @@ class VideoPlayer extends React.Component {
                             >
                                 <Video
                                     key={this.url}
-                                    rate={videoRate}
+                                    rate={this.state.rate || videoRate}
                                     source={{ uri: this.props.url }}
                                     ref={(ref) => { this.player = ref }}
                                     continuous={this.props.continuous ? true : false}//是否是连续剧，用来全屏展示选集，下一集按钮    重新加载Video标签，防止出现上个视频和下个视频分辨率不切换的问题　
@@ -1072,7 +1114,12 @@ class VideoPlayer extends React.Component {
                                         {this.props.storeComponent ? this.props.storeComponent() : <SvgVideoScang height="20" width="20" />}
                                     </TouchableOpacity>
                                     <TouchableOpacity style={{ padding: 8, marginLeft: 1, }}
-                                        onPress={this.props.onMoreFun && this.props.onMoreFun()}
+                                        onPress={() => {
+                                            this.setState({
+                                                visible: true,
+                                            })
+                                            this.props.onMoreFun && this.props.onMoreFun()
+                                        }}
                                     >
                                         {this.props.moreSetting ? this.props.moreSetting() : <SvgVideoSetting height="20" width="20" />}
                                     </TouchableOpacity>
